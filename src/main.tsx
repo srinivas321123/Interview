@@ -6,7 +6,7 @@ import { TicketDashboard } from './exercise-3'
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <div className="min-h-svh bg-background p-6">
+    <div className="bg-background h-screen p-6">
       <TicketDashboard />
     </div>
   </React.StrictMode>,

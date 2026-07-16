@@ -31,6 +31,8 @@
 //
 // ---------------------------------------------------------------------------
 
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardHeader,
@@ -39,8 +41,6 @@ import {
   CardContent,
   CardFooter,
 } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 export type TicketStatus = 'open' | 'in-progress' | 'resolved' | 'closed'
@@ -62,7 +62,10 @@ export interface TicketCardProps {
   className?: string
 }
 
-const statusBadgeVariant: Record<TicketStatus, 'default' | 'secondary' | 'outline' | 'destructive'> = {
+const statusBadgeVariant: Record<
+  TicketStatus,
+  'default' | 'secondary' | 'outline' | 'destructive'
+> = {
   open: 'default',
   'in-progress': 'secondary',
   resolved: 'outline',
@@ -91,7 +94,13 @@ export function TicketCard({ ticket, onStatusChange, className }: TicketCardProp
   }
 
   return (
-    <Card className={cn('border-l-4', priorityBorderClass[ticket.priority], className)}>
+    <Card
+      className={cn(
+        'border-border/60 border border-l-4 shadow-sm',
+        priorityBorderClass[ticket.priority],
+        className,
+      )}
+    >
       <CardHeader className="flex-row items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <CardTitle className="mb-1">{ticket.title}</CardTitle>
@@ -100,7 +109,7 @@ export function TicketCard({ ticket, onStatusChange, className }: TicketCardProp
         <Badge variant={statusBadgeVariant[ticket.status]}>{ticket.status}</Badge>
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-1 text-muted-foreground">
+      <CardContent className="text-muted-foreground flex flex-col gap-1">
         <div>
           Assignee: <span>{ticket.assignee}</span>
         </div>
@@ -108,9 +117,7 @@ export function TicketCard({ ticket, onStatusChange, className }: TicketCardProp
       </CardContent>
 
       <CardFooter className="justify-end">
-        <Button onClick={handleClick}>
-          Advance to {nextStatus}
-        </Button>
+        <Button onClick={handleClick}>Advance to {nextStatus}</Button>
       </CardFooter>
     </Card>
   )
