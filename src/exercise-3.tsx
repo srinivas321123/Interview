@@ -37,16 +37,87 @@
 //
 // ---------------------------------------------------------------------------
 
-import { useState, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
-import type { Ticket, TicketStatus } from './mock-data'
+import { TicketCard, type Ticket, type TicketStatus } from './exercise-1'
+import { useKeyboardShortcuts } from './exercise-2'
 import { MOCK_TICKETS } from './mock-data'
-
-// Import your TicketCard from exercise-1
-// Import your useKeyboardShortcuts from exercise-2
-// Install and import Command components from @/components/ui/command
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
 
 export function TicketDashboard() {
-  // Implement here
-  return null
+  const [tickets, setTickets] = useState<Ticket[]>(MOCK_TICKETS)
+  const [query, setQuery] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const filteredTickets = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase()
+
+    if (!normalizedQuery) {
+      return tickets
+    }
+
+    return tickets.filter((ticket) => {
+      const haystack = `${ticket.title} ${ticket.description}`.toLowerCase()
+      return haystack.includes(normalizedQuery)
+    })
+  }, [query, tickets])
+
+  const handleStatusChange = (id: string, status: TicketStatus) => {
+    setTickets((currentTickets) =>
+      currentTickets.map((ticket) => (ticket.id === id ? { ...ticket, status } : ticket)),
+    )
+  }
+
+  const shortcuts = [
+    {
+      key: '/',
+      handler: () => inputRef.current?.focus(),
+    },
+    {
+      key: 'Escape',
+      handler: () => {
+        setQuery('')
+        inputRef.current?.blur()
+      },
+    },
+  ]
+
+  useKeyboardShortcuts(shortcuts)
+
+  return (
+    <div className="mx-auto flex max-w-5xl flex-col gap-4">
+      <div className="space-y-2">
+        <h2 className="text-xl font-semibold">Support Tickets</h2>
+        <p className="text-sm text-muted-foreground">Search tickets and update their status.</p>
+      </div>
+
+      <Command className="rounded-xl border bg-background">
+        <CommandInput
+          ref={inputRef}
+          placeholder="Search tickets..."
+          value={query}
+          onValueChange={setQuery}
+        />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup>
+            {filteredTickets.map((ticket) => (
+              <CommandItem key={ticket.id} value={`${ticket.title} ${ticket.description}`}>
+                <div className="w-full">
+                  <TicketCard ticket={ticket} onStatusChange={handleStatusChange} className="border-0 shadow-none" />
+                </div>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </CommandList>
+      </Command>
+    </div>
+  )
 }
