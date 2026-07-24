@@ -65,5 +65,52 @@ export function useKeyboardShortcuts(
   shortcuts: KeyboardShortcut[],
   options: UseKeyboardShortcutsOptions = {},
 ) {
-  // Implement here. Make the tests in exercise-2.test.tsx pass.
+  const { enabled = true } = options
+  const shortcutsRef = useRef(shortcuts)
+
+  useEffect(() => {
+    shortcutsRef.current = shortcuts
+  }, [shortcuts])
+
+  useEffect(() => {
+    if (!enabled) {
+      return undefined
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      const isTypingTarget =
+        target instanceof HTMLElement &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+
+      if (isTypingTarget) {
+        return
+      }
+
+      const lowerKey = event.key.toLowerCase()
+
+      const match = shortcutsRef.current.find((shortcut) => {
+        const sameKey = shortcut.key.toLowerCase() === lowerKey
+        const sameCtrl = !!shortcut.ctrl === event.ctrlKey
+        const sameShift = !!shortcut.shift === event.shiftKey
+        const sameAlt = !!shortcut.alt === event.altKey
+        const sameMeta = !!shortcut.meta === event.metaKey
+
+        return sameKey && sameCtrl && sameShift && sameAlt && sameMeta
+      })
+
+      if (match) {
+        event.preventDefault()
+        match.handler()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [enabled])
 }
